@@ -2,7 +2,7 @@ name := "cal"
 
 version := "0.1"
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.10.2"
 
 // Set things up so we can run async
 fork := true
@@ -16,12 +16,8 @@ resolvers ++= Seq(
 
 // Main
 libraryDependencies ++= Seq(
-  "org.scalaz"      % "scalaz-core_2.10"       % "7.0.0",
-  "org.scalaz"      % "scalaz-effect_2.10"     % "7.0.0",
-  "org.scalaz"      % "scalaz-concurrent_2.10" % "7.0.0",
-  "org.scalaz"      % "scalaz-iteratee_2.10"   % "7.0.0",
-  "org.scala-stm"  %% "scala-stm"              % "0.7",
-  "org.typelevel"  %% "shapeless-scalaz"       % "0.2-SNAPSHOT",
+  "org.scalaz"      % "scalaz-core_2.10"       % "7.0.2",
+  "org.scalaz"      % "scalaz-effect_2.10"     % "7.0.2",
   "com.chuusai"    %% "shapeless"              % "1.2.4",
   "org.spire-math" %% "spire"                  % "0.5.0"
 )
@@ -29,8 +25,7 @@ libraryDependencies ++= Seq(
 // Test
 libraryDependencies ++= Seq(
   "org.scalacheck" %% "scalacheck"           % "1.10.0"       % "test",
-  "org.specs2"     %% "specs2"               % "1.13"         % "test",
-  "org.typelevel"  %% "shapeless-scalacheck" % "0.2-SNAPSHOT" % "test"
+  "org.specs2"     %% "specs2"               % "1.13"         % "test"
 )
 
 // Let's add a linter
@@ -51,6 +46,9 @@ scalacOptions ++= Seq(
 	"-Xfatal-warnings"
 )
 
-
+initialCommands :=
+  """import scalaz._
+     import Scalaz._
+     import time.calendar._"""
 
 

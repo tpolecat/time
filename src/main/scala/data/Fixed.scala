@@ -4,6 +4,7 @@ import shapeless._
 import shapeless.Nat._
 import scala.math.BigInt
 import language._
+import shapeless.Nat._
 
 object Fixed {
 

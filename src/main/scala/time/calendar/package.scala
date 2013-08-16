@@ -3,7 +3,7 @@ package time
 import scalaz.Order
 import scalaz.syntax.order._
 
-// http://www.haskell.org/ghc/docs/7.4-latest/html/libraries/time-1.4/src/Data-Time-Calendar-Private.html
+/** Types and instances related to calendar dates. */
 package object calendar {
 
   def clip[A: Order](a: A, b: A, x: A): A =
@@ -23,3 +23,4 @@ package object calendar {
     if (isLeapYear(year)) 366 else 365
 
 }
+

@@ -9,18 +9,15 @@ import scalaz.std.anyVal._
 import scalaz.syntax.enum._
 import scalaz.syntax.bifunctor._
 
-/**
- * A calendar date, with operations over the Gregorian calendar.
- * @see numerous smart constructors in the companion object
- */
+/** ISO-8601 calendar date. */
 sealed trait Date {
 
   /** Convert to Modified Julian Date. */
   def toModifiedJulianDate: Int
 
   /**
-   * Convert to ISO 8601 Ordinal Date as (Gregorian year, day in year). The day will be in the range 1 .. 365 (or 366
-   * for leap years).
+   * Convert to ISO 8601 Ordinal Date as (Gregorian year, day in year). The day will be in the 
+   * range 1 .. 365 (or 1 .. 366 for leap years).
    */
   def toOrdinalDate: (Int, Int) = {
     val a = toModifiedJulianDate + 678575
@@ -36,12 +33,15 @@ sealed trait Date {
     (year, yd.toInt)
   }
 
-  /** Gregorian year. By convention there is no year zero; a value of 0 here is typically shown as 1 BC. */
+  /** 
+   * Gregorian year. 
+   * By convention there is no year zero; a value of 0 here is typically shown as 1 BC. 
+   */
   def year: Int =
     toOrdinalDate._1
 
   /** Day in Gregorian year, in the range 1 .. 365 (or 366 for leap years). */
-  def dayInYear: Int =
+  def dayYear: Int =
     toOrdinalDate._1
 
   /** Month in Gregorian year. */
@@ -54,7 +54,7 @@ sealed trait Date {
 
   /** Day in week in the Gregorian calendar. */
   def dayInWeek: Weekday =
-    Weekday.fromOrdinal(mondayStartWeek._2).map(_.succ).get // ***
+    Weekday.weekdayFromOrdinal(mondayStartWeek._2).map(_.succ).get // ***
 
   /** Roll forward by 'n' days. */
   def addDays(n: Int): Date =
@@ -65,8 +65,9 @@ sealed trait Date {
     toModifiedJulianDate - that.toModifiedJulianDate
 
   /**
-   * Get the number of the Monday-starting week in the Gregorian year, and the day of the week. The first Monday is the
-   * first day of week 1, any earlier days in the year are week 0. Monday is 1, Sunday is 7.
+   * Get the number of the Monday-starting week in the Gregorian year, and the day of the week. 
+   * The first Monday is the first day of week 1, any earlier days in the year are week 0. Monday 
+   * is 1, Sunday is 7.
    */
   def mondayStartWeek: (Int, Int) = {
     val d = toModifiedJulianDate + 2
@@ -159,16 +160,15 @@ object Date extends DayFunctions with DateInstances {
   }
 
   /**
-   * Convert from proleptic Gregorian calendar. First argument is year, second month number (1-12), third day (1-31).
-   * Invalid values will be clipped to the correct range, month first, then day.
+   * Convert from proleptic Gregorian calendar. First argument is year, second month number (1-12), 
+   * third day (1-31). Invalid values will be clipped to the correct range, month first, then day.
    */
   def fromYearMonthDayClipped(year: Int, month: Int, day: Int): Date =
     fromOrdinalDateClipped(year, dayOfYearClipped(isLeapYear(year), month, day))
 
   /**
-   * Convert from proleptic Gregorian calendar.
-   * First argument is year, second month number (1-12), third day (1-31).
-   * Invalid values will return None
+   * Convert from proleptic Gregorian calendar. First argument is year, second month number (1-12), 
+   * third day (1-31). Invalid values will return None
    */
   def fromYearMonthDay(year: Int, month: Int, day: Int): Option[Date] =
     dayOfYear(isLeapYear(year), month, day).flatMap(fromOrdinalDate(year, _))
@@ -258,7 +258,7 @@ trait DayFunctions {
   /** Convert day of year in the Gregorian or Julian calendars to month and day. */
   def monthAndDay(isLeap: Boolean, dayOfYear: Int): (Month, Int) = {
     val (m, d) = findMonthDay(monthLengths(isLeap), clip(1, if (isLeap) 366 else 365, dayOfYear))
-    (Month.fromOrdinal(m).get, d) // **
+    (Month.monthFromOrdinal(m).get, d) // **
   }
 
   // Helpers
@@ -272,7 +272,7 @@ trait DayFunctions {
     monthLengths(isLeap)(month0 - 1) // ***
 
   private def monthLengths(isLeap: Boolean): List[Int] =
-    Month.values.map(_.length(isLeap))
+    if (isLeap) Month.months.map(_.leapDays) else Month.months.map(_.commonDays)
 
 }
 
@@ -299,4 +299,6 @@ trait DateInstances {
     }
 
 }
+
+
 
