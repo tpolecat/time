@@ -8,7 +8,7 @@ import Scalaz._
 final class DateYD private (val year: Int, val day: Int) {
 
   override def toString =
-    s"DateYD($year, $day)"
+    s"DateYD($year,$day)"
 
 }
 

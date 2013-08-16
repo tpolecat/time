@@ -4,7 +4,7 @@ import scalaz._
 import Scalaz._
 
 /** ISO-8601 reduced-precision date with extended calendar year. */
-final case class DateY(year: Int)
+final case class DateY(year: Int) extends AnyVal
 
 object DateY extends DateYFunctions with DateYInstances
 
