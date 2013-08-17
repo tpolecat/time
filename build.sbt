@@ -49,6 +49,8 @@ scalacOptions ++= Seq(
 initialCommands :=
   """import scalaz._
      import Scalaz._
-     import time.calendar._"""
+     import time.calendar._
+     import time.calendar.syntax.all._
+     val d = DateYMD.fromModifiedJulianDate(56519)"""
 
 

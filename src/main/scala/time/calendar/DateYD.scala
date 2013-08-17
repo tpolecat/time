@@ -5,10 +5,10 @@ import scalaz._
 import Scalaz._
 
 /** ISO-8601 ordinal date with extended year and day fo year. */
-final class DateYD private (val year: Int, val day: Int) {
+final class DateYD private (val year: Int, val dayOfYear: Int) {
 
   override def toString =
-    s"DateYD($year,$day)"
+    s"DateYD($year,$dayOfYear)"
 
 }
 
@@ -18,7 +18,7 @@ object DateYD extends DateYDFunctions with DateYDInstances {
     (day > 0 && day <= HasYear.lengthOfYear(year)) option new DateYD(year, day)
 
   def unapply(yd: DateYD): Some[(Int, Int)] =
-    Some((yd.year, yd.day))
+    Some((yd.year, yd.dayOfYear))
 
   // Needs to be here because it constructs instances
   implicit val enum: Enum[DateYD] = 
@@ -37,7 +37,7 @@ object DateYD extends DateYDFunctions with DateYDInstances {
         }
 
       def order(x: DateYD,y: DateYD): Ordering = 
-        Ordering.fromLessThan(x, y)((x, y) => (x.year, x.day) < ((y.year, y.day)))
+        Ordering.fromLessThan(x, y)((x, y) => (x.year, x.dayOfYear) < ((y.year, y.dayOfYear)))
 
     }
 
@@ -61,7 +61,7 @@ trait DateYDInstances {
 
   /** Show instance for ISO-8601 YYYY-DDD extended format. */
   implicit val show: Show[DateYD] =
-    Show.shows(yd => f"${yd.year}%04d-${yd.day}%03d")
+    Show.shows(yd => f"${yd.year}%04d-${yd.dayOfYear}%03d")
 
 }
 

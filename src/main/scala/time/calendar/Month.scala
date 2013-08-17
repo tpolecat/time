@@ -148,7 +148,7 @@ trait MonthInstances { this: Month.type =>
 
     }
 
-   implicit def monthShow: Show[Month] =
+  implicit def monthShow: Show[Month] =
     Show.shows {
       case Jan => "Jan"
       case Feb => "Feb"

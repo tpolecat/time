@@ -1,6 +1,7 @@
 package time
 package calendar
 
+/** Typeclass for calendar dates with month and year precision. */
 trait HasMonth[A] extends HasYear[A] {
 
   def month(a:A): Month
