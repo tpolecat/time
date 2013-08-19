@@ -16,22 +16,13 @@ trait YearAndMonthInstances {
   implicit val hasMonth: HasMonth[DateYM] =
     new HasMonth[DateYM] {
 
-      def year(d: DateYM): Int = 
-        d.year
+      def yearAndMonth(d: DateYM): (Int, Month) = 
+        (d.year, d.month)
       
-      def addYearsClip(d: DateYM, n: Int) : DateYM = 
-        DateYM(d.year + n, d.month)
+      def fromYearAndMonth(y: Int, m: Month): DateYM =
+        DateYM(y, m)
 
-      def addYearsRollOver(d: DateYM, n: Int) : DateYM = 
-        DateYM(d.year + n, d.month)
-
-      def month(d: DateYM): Month = 
-        d.month
-      
-      def addMonthsClip(d: DateYM, n: Int): DateYM = 
-        enum.succn(n, d)
-
-      def addMonthsRollOver(d: DateYM, n: Int): DateYM = 
+      def addMonths(d: DateYM, n: Int, mode: AddMode): DateYM = 
         enum.succn(n, d)
 
     }

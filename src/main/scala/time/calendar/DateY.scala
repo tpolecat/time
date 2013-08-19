@@ -6,7 +6,12 @@ import Scalaz._
 /** ISO-8601 reduced-precision date with extended calendar year. */
 final case class DateY(year: Int) extends AnyVal
 
-object DateY extends DateYFunctions with DateYInstances
+object DateY extends DateYFunctions with DateYInstances {
+
+  def from[A](a: A)(implicit A: HasYear[A]): DateY =
+    new DateY(A.year(a))
+
+}
 
 trait DateYFunctions 
 
@@ -17,11 +22,11 @@ trait DateYInstances {
       
       def year(d: DateY): Int = 
         d.year
+
+      def fromYear(y: Int): DateY =
+        DateY(y)
       
-      def addYearsClip(d: DateY, n: Int): DateY = 
-        enum.succn(n, d)
-    
-      def addYearsRollOver(d: DateY, n: Int): DateY = 
+      def addYears(d: DateY, n: Int, mode: AddMode): DateY = 
         enum.succn(n, d)
     
     }

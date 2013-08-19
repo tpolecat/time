@@ -11,17 +11,11 @@ trait HasMonthOps[A] extends Ops[A] {
   def month: Month =
     A.month(self)
 
-  def addMonthsClip(n: Int): A =
-    A.addMonthsClip(self, n)
-
-  def addMonthsRollOver(n: Int): A =
-    A.addMonthsRollOver(self, n)
+  def addMonths(n: Int, mode: AddMode): A =
+    A.addMonths(self, n, mode)
 
   def lengthOfMonth: Int =
     A.lengthOfMonth(self)
-
-  def toDateYM: DateYM =
-    A.toDateYM(self)
 
 }
 

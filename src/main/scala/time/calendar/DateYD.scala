@@ -17,6 +17,23 @@ object DateYD extends DateYDFunctions with DateYDInstances {
   def apply(year: Int, day: Int): Option[DateYD] = 
     (day > 0 && day <= HasYear.lengthOfYear(year)) option new DateYD(year, day)
 
+  def from[A](a:A)(implicit ev: HasDay[A]): DateYD =
+    fromModifiedJulianDate(ev.toModifiedJulianDate(a))
+
+  def fromModifiedJulianDate(jd: Int): DateYD = {
+    val x = jd + 678575
+    val quadcent = x / 146097
+    val b = x % 146097
+    val cent = (b / 36524) min 3
+    val c = b - (cent * 36524)
+    val quad = c / 1461
+    val d = c % 1461
+    val y = (d / 365) min 3
+    val yd = (d - (y * 365) + 1)
+    val year = quadcent * 400 + cent * 100 + quad * 4 + y + 1
+    new DateYD(year, yd)
+  }
+
   def unapply(yd: DateYD): Some[(Int, Int)] =
     Some((yd.year, yd.dayOfYear))
 
@@ -45,19 +62,7 @@ object DateYD extends DateYDFunctions with DateYDInstances {
 
 trait DateYDInstances {
 
-  implicit val hasYear: HasYear[DateYD] =
-    new HasYear[DateYD] {
-
-      def year(d: DateYD): Int = 
-        d.year
-
-      def addYearsClip(d:DateYD, n: Int): DateYD = 
-        ???
-
-      def addYearsRollOver(d:DateYD, n: Int): DateYD = 
-        ???
-
-    }
+  // TODO: HasDay
 
   /** Show instance for ISO-8601 YYYY-DDD extended format. */
   implicit val show: Show[DateYD] =

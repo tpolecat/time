@@ -6,17 +6,14 @@ trait HasYear[A] {
   
   def year(a:A): Int
 
-  /**
-   * Add years, matching month and day, with Feb 29th clipped to Feb 28th if necessary.
-   * For instance, 2004-02-29 + 2 years = 2006-02-28.
-   */
-  def addYearsClip(a:A, n: Int): A
+  /** Construct an instance given a year. */
+  def fromYear(y: Int): A
 
-  /**
-   * Add years, matching month and day, with Feb 29th rolled over to Mar 1st if necessary.
-   * For instance, 2004-02-29 + 2 years = 2006-03-01.
-   */
-  def addYearsRollOver(a: A, n: Int): A 
+  /** Convert to any other type with HasYear. */  
+  def to[B](a: A)(implicit ev: HasYear[B]): B =
+    ev.fromYear(year(a))
+
+  def addYears(a:A, n: Int, mode: AddMode): A
 
   /** True if this is a leap year in the proleptic Gregorian calendar. */
   def isLeapYear(a:A): Boolean = 
@@ -33,9 +30,6 @@ trait HasYear[A] {
   /** Length of this year in days. */
   def lengthOfYear(a: A): Int =
     HasYear.lengthOfYear(year(a))
-
-  def toDateY(a:A): DateY =
-    DateY(year(a))
 
 }
 

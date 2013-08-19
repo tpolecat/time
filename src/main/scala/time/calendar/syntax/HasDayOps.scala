@@ -35,12 +35,6 @@ trait HasDayOps[A] extends Ops[A] {
   def toModifiedJulianDate: Int =
     A.toModifiedJulianDate(self)
 
-  def toDateYD: DateYD = 
-    A.toDateYD(self)
-
-  def toDateYMD: DateYMD =
-    A.toDateYMD(self)
-    
 }
 
 trait ToHasDayOps {

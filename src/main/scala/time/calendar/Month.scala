@@ -98,6 +98,30 @@ trait MonthFunctions { this: Month.type =>
   def monthFromOrdinal(n: Int): Option[Month] =
     months.find(_.ord == n)
 
+  // Find month and day; used below
+  private def monthAndDay(n: Int, f: Month => Int): Option[(Month, Int)] = {
+    def find(ms: List[Month], n: Int): Option[(Month, Int)] = ms match {
+      case m :: ms if n <= f(m) => Some((m, n))
+      case m :: ms => find(ms, n - f(m))
+      case _ => None
+    }
+    if (n < 1) None else find(months, n)
+  }
+
+  /** 
+   * Returns the month and day of month, given day of a common (non-leap) year, or None if the 
+   * given day is out of the range [1, 365].
+   */
+  def monthAndDayCommon(n: Int): Option[(Month, Int)] =
+    monthAndDay(n, _.commonDays)
+
+  /** 
+   * Returns the month and day of month, given day of a leap year, or None if the given day is out 
+   * of the range [1, 366].
+   */
+  def monthAndDayLeap(n: Int): Option[(Month, Int)] =
+    monthAndDay(n, _.leapDays)
+
 }
 
 trait MonthInstances { this: Month.type =>

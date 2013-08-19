@@ -6,13 +6,22 @@ import scalaz.syntax.enum._
 /** Typeclass for calendar dates with day-of-year precision. */
 trait HasDay[A] extends HasMonth[A] {
 
-  def dayOfYear(a: A): Int =
-    toDateYD(a).dayOfYear
+  def toModifiedJulianDate(a: A): Int
 
-  def dayOfMonth(a: A): Int = {
-    val DateYMD(y, m, d) = toDateYMD(a)
-    d
-  }
+  def fromModifiedJulianDate(n: Int): A
+
+  def fromYearAndMonth(y: Int, m: Month): A =
+    ???
+
+  /** Convert to any other representation with day-of-year precision. */
+  def to[B](a: A)(implicit B: HasDay[B]) =
+    B.fromModifiedJulianDate(toModifiedJulianDate(a))
+
+  def dayOfYear(a: A): Int =
+    ???
+
+  def dayOfMonth(a: A): Int =
+    ???
 
   def dayOfWeek(a: A): Weekday =
     Weekday.weekdayFromOrdinal(mondayStartWeek(a)._2).map(_.succ).get // ***
@@ -33,37 +42,16 @@ trait HasDay[A] extends HasMonth[A] {
    */
   def mondayStartWeek(a:A): (Int, Int) = {
     val d = toModifiedJulianDate(a) + 2
-    val k = d - toDateYD(a).dayOfYear
+    val k = d - dayOfYear(a)
     ((d / 7) - (k / 7), (d % 7) + 1)
   }
 
   // TODO: generalize this eh?
   def sundayStartWeek(a:A): (Int, Int) = {
     val d = toModifiedJulianDate(a) + 3
-    val k = d - toDateYD(a).dayOfYear
+    val k = d - dayOfYear(a)
     ((d / 7) - (k / 7), d % 7)
   }
-
-  def toModifiedJulianDate(a: A): Int
-
-  def fromModifiedJulianDate(n: Int): A
-
-  def toDateYD(a:A): DateYD = {
-    val x = toModifiedJulianDate(a) + 678575
-    val quadcent = x / 146097
-    val b = x % 146097
-    val cent = (b / 36524) min 3
-    val c = b - (cent * 36524)
-    val quad = c / 1461
-    val d = c % 1461
-    val y = (d / 365) min 3
-    val yd = (d - (y * 365) + 1)
-    val year = quadcent * 400 + cent * 100 + quad * 4 + y + 1
-    DateYD(year, yd).getOrElse(sys.error("Problem with the implementation."))
-  }
-
-  def toDateYMD(a: A): DateYMD =
-    DateYMD.fromModifiedJulianDate(toModifiedJulianDate(a))
 
 }
 
@@ -75,41 +63,27 @@ object HasDay extends HasDayInstances with HasDayFunctions {
   /** Minimal implementation is possible with conversions to and from ModifiedJulianDate. */
   def byModifiedJulianDate[A](f: A => Int, g: Int => A): HasDay[A] =
     new HasDay[A] {
-  
-      def month(a:A): Month = {
-        val DateYMD(y, m, d) = toDateYMD(a)
-        m
-      }
+
+      def toModifiedJulianDate(a: A): Int = f(a)
+      def fromModifiedJulianDate(n: Int): A = g(n)
+
+      def yearAndMonth(a: A): (Int, Month) =
+        ???
 
       // A wee helper
       private def addMonths(a: A, n: Int): (Int, Int, Int) = {
         def rolloverMonths(y: Int, m: Int): (Int, Int) =
           (y + ((m - 1) / 12), ((m - 1) % 12).toInt + 1)
-        val DateYMD(y, m, d) = toDateYMD(a)
+        val y = year(a)
+        val m = month(a)
+        val d = dayOfMonth(a)
+        // val DateYMD(y, m, d) = toDateYMD(a)
         val (y0, m0) = rolloverMonths(y, m.ord + n)
         (y0, m0, d)
       }
 
-      def addMonthsClip(a: A, n: Int): A = 
+      def addMonths(a: A, n: Int, mode: AddMode): A = 
         ???
-
-      def addMonthsRollOver(a: A, n: Int): A = 
-        ???
-
-      def year(a:A): Int =
-        toDateYD(a).year
-
-      def addYearsClip(a: A, n: Int): A =
-        addMonthsClip(a, n * 12)
-
-      def addYearsRollOver(a: A, n: Int): A =
-        addMonthsRollOver(a, n * 12)
-
-      def toModifiedJulianDate(a: A): Int = 
-        f(a)
-
-      def fromModifiedJulianDate(n: Int): A = 
-        g(n)
 
     }
 

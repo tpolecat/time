@@ -4,25 +4,32 @@ package calendar
 /** Typeclass for calendar dates with month and year precision. */
 trait HasMonth[A] extends HasYear[A] {
 
-  def month(a:A): Month
+  def yearAndMonth(a: A): (Int, Month)
 
-  /**
-   * Add months, with days past the last day of the month clipped to the last day.
-   * For instance, 2005-01-30 + 1 month = 2005-02-28.
-   */
-  def addMonthsClip(a:A, n: Int): A 
+  def fromYearAndMonth(y: Int, m: Month): A
 
-  /**
-   * Add months, with days past the last day of the month rolling over to the next month.
-   * For instance, 2005-01-30 + 1 month = 2005-03-02.
-   */
-  def addMonthsRollOver(a: A, n: Int): A 
+  def to[B](a: A)(implicit B: HasMonth[B]): B =
+    B.fromYearAndMonth(year(a), month(a))
+
+  def month(a:A): Month =
+    yearAndMonth(a)._2
+
+  def addMonths(a:A, n: Int, mode: AddMode): A 
+
 
   def lengthOfMonth(a:A): Int =
     HasMonth.lengthOfMonth(year(a), month(a))
 
-  def toDateYM(a:A): DateYM =
-    DateYM(year(a), month(a))
+  ////// HasYear implementation 
+
+  def year(a: A): Int =
+    yearAndMonth(a)._1
+
+  def fromYear(y: Int): A =
+    fromYearAndMonth(y, Month.Jan)
+
+  def addYears(a: A, n: Int, mode: AddMode) : A = 
+    addMonths(a, n * 12, mode)
 
 }
 
