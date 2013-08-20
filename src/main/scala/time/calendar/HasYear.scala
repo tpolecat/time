@@ -4,6 +4,7 @@ package calendar
 /** Typeclass for calendar dates with year precision. */
 trait HasYear[A] {
   
+  /** Calendar year. */
   def year(a:A): Int
 
   /** Construct an instance given a year. */
@@ -13,6 +14,7 @@ trait HasYear[A] {
   def to[B](a: A)(implicit ev: HasYear[B]): B =
     ev.fromYear(year(a))
 
+  /** Add `n` years given the specified `AddMode`. */
   def addYears(a:A, n: Int, mode: AddMode): A
 
   /** True if this is a leap year in the proleptic Gregorian calendar. */
@@ -34,10 +36,7 @@ trait HasYear[A] {
 }
 
 object HasYear extends HasYearFunctions{
-
-  def apply[A](implicit ev: HasYear[A]): HasYear[A] =
-    ev
-
+  def apply[A](implicit ev: HasYear[A]): HasYear[A] = ev
 }
 
 trait HasYearFunctions {

@@ -4,15 +4,12 @@ package calendar
 /** Typeclass for calendar dates with month and year precision. */
 trait HasMonth[A] extends HasYear[A] {
 
-  def yearAndMonth(a: A): (Int, Month)
-
   def fromYearAndMonth(y: Int, m: Month): A
 
   def to[B](a: A)(implicit B: HasMonth[B]): B =
     B.fromYearAndMonth(year(a), month(a))
 
-  def month(a:A): Month =
-    yearAndMonth(a)._2
+  def month(a:A): Month
 
   def addMonths(a:A, n: Int, mode: AddMode): A 
 
@@ -22,8 +19,7 @@ trait HasMonth[A] extends HasYear[A] {
 
   ////// HasYear implementation 
 
-  def year(a: A): Int =
-    yearAndMonth(a)._1
+  def year(a: A): Int
 
   def fromYear(y: Int): A =
     fromYearAndMonth(y, Month.Jan)
@@ -34,10 +30,7 @@ trait HasMonth[A] extends HasYear[A] {
 }
 
 object HasMonth extends HasMonthFunctions {
-
-  def apply[A](implicit ev: HasMonth[A]): HasMonth[A] =
-    ev
-
+  def apply[A](implicit ev: HasMonth[A]): HasMonth[A] = ev
 }
 
 trait HasMonthFunctions {

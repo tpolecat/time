@@ -2,26 +2,59 @@ package time
 package calendar
 
 import scalaz.syntax.enum._
+import scalaz.syntax.std.boolean._
 
-/** Typeclass for calendar dates with day-of-year precision. */
+/** 
+ * Typeclass for calendar dates with day-of-year precision. 
+ *
+ * The fundamental operation here is conversion to/from modified Julain date; all other operations
+ * can be defined in these terms.
+ */
 trait HasDay[A] extends HasMonth[A] {
 
   def toModifiedJulianDate(a: A): Int
 
   def fromModifiedJulianDate(n: Int): A
 
-  def fromYearAndMonth(y: Int, m: Month): A =
+  /** Construct a new day-precision date on the first day of the given month. */
+  def fromYearAndMonth(year: Int, month: Month): A = 
     ???
 
   /** Convert to any other representation with day-of-year precision. */
   def to[B](a: A)(implicit B: HasDay[B]) =
     B.fromModifiedJulianDate(toModifiedJulianDate(a))
 
-  def dayOfYear(a: A): Int =
-    ???
+  // HasYear implementation (free)
+
+  def year(a: A): Int = 
+    toOrdinalDate(a)._1
+
+  def dayOfYear(a: A): Int = 
+    toOrdinalDate(a)._2
+
+  // HasMonth implementation (free)
+
+  def month(a: A): Month =
+    monthAndDay(a)._1
 
   def dayOfMonth(a: A): Int =
+    monthAndDay(a)._2
+
+  def addMonths(a: A, n: Int, mode: AddMode): A = {
+
+    def rolloverMonths(y: Int, m: Int): (Int, Int) =
+      (y + ((m - 1) / 12), ((m - 1) % 12).toInt + 1)
+
+    def addMonths(a: A, n: Int): (Int, Int, Int) = {
+      val (y, m) = rolloverMonths(year(a), month(a).ord + n)
+      (y, m, dayOfMonth(a))
+    }
+
     ???
+  
+  }
+
+  // Useful functions
 
   def dayOfWeek(a: A): Weekday =
     Weekday.weekdayFromOrdinal(mondayStartWeek(a)._2).map(_.succ).get // ***
@@ -53,38 +86,38 @@ trait HasDay[A] extends HasMonth[A] {
     ((d / 7) - (k / 7), d % 7)
   }
 
+  // Some private helpers. Perhaps these should be exposed?
+
+  private def toOrdinalDate(a: A): (Int /* Year */, Int /* Day of year */) = {
+    val x = toModifiedJulianDate(a) + 678575
+    val quadcent = x / 146097
+    val b = x % 146097
+    val cent = (b / 36524) min 3
+    val c = b - (cent * 36524)
+    val quad = c / 1461
+    val d = c % 1461
+    val y = (d / 365) min 3
+    val yd = (d - (y * 365) + 1)
+    val year = quadcent * 400 + cent * 100 + quad * 4 + y + 1
+    (year, yd)
+  }
+
+  private def monthAndDay(a:A): (Month, Int) = {
+    val isLeap = isLeapYear(a)
+    val dy = toOrdinalDate(a)._2
+    (isLeap ? Month.monthAndDayLeap(dy) | Month.monthAndDayCommon(dy)).get // **
+  }
+
 }
 
 object HasDay extends HasDayInstances with HasDayFunctions {
-
-  def apply[A](implicit ev: HasDay[A]): HasDay[A] =
-    ev
+  def apply[A](implicit ev: HasDay[A]): HasDay[A] = ev
 
   /** Minimal implementation is possible with conversions to and from ModifiedJulianDate. */
   def byModifiedJulianDate[A](f: A => Int, g: Int => A): HasDay[A] =
     new HasDay[A] {
-
       def toModifiedJulianDate(a: A): Int = f(a)
       def fromModifiedJulianDate(n: Int): A = g(n)
-
-      def yearAndMonth(a: A): (Int, Month) =
-        ???
-
-      // A wee helper
-      private def addMonths(a: A, n: Int): (Int, Int, Int) = {
-        def rolloverMonths(y: Int, m: Int): (Int, Int) =
-          (y + ((m - 1) / 12), ((m - 1) % 12).toInt + 1)
-        val y = year(a)
-        val m = month(a)
-        val d = dayOfMonth(a)
-        // val DateYMD(y, m, d) = toDateYMD(a)
-        val (y0, m0) = rolloverMonths(y, m.ord + n)
-        (y0, m0, d)
-      }
-
-      def addMonths(a: A, n: Int, mode: AddMode): A = 
-        ???
-
     }
 
 }
@@ -97,5 +130,6 @@ trait HasDayFunctions {
   val leapDayOfYear: Int =
     Month.Jan.leapDays + Month.Feb.leapDays 
 
-
 }
+
+

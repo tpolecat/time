@@ -4,43 +4,21 @@ import scalaz.Enum
 import scalaz.Ordering
 import scalaz.Show
 
-/** Algebraic type representing the 7 days of the Julian/Gregorian week. */
-sealed trait Weekday {
-
-  /** Natural ordinal, in 1 .. 7. */
-  def ord: Int
-
-}
+/** 
+ * Algebraic type representing the 7 days of the Julian/Gregorian week. 
+ * @param ord Natural ordinal, in [1, 7]
+ */
+sealed abstract class Weekday(val ord: Int)
 
 object Weekday extends WeekdayFunctions with WeekdayInstances {
 
-  case object Sun extends Weekday {
-    val ord = 1
-  }
-
-  case object Mon extends Weekday {
-    val ord = 2
-  }
-
-  case object Tue extends Weekday {
-    val ord = 3
-  }
-
-  case object Wed extends Weekday {
-    val ord = 4
-  }
-
-  case object Thu extends Weekday {
-    val ord = 5
-  }
-
-  case object Fri extends Weekday {
-    val ord = 6
-  }
-
-  case object Sat extends Weekday {
-    val ord = 7
-  }
+  case object Sun extends Weekday(1)
+  case object Mon extends Weekday(2)
+  case object Tue extends Weekday(3)
+  case object Wed extends Weekday(4)
+  case object Thu extends Weekday(5)
+  case object Fri extends Weekday(6)
+  case object Sat extends Weekday(7)
 
   /** List of all Weekdays, in order starting with Sun. */
   val weekdays: List[Weekday] =

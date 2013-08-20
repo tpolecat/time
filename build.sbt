@@ -51,6 +51,6 @@ initialCommands :=
      import Scalaz._
      import time.calendar._
      import time.calendar.syntax.all._
-     val d = DateYMD.fromModifiedJulianDate(56519)"""
+     val d = Date.fromModifiedJulianDate(56519)"""
 
 

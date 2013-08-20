@@ -4,95 +4,38 @@ import scalaz.Enum
 import scalaz.Ordering
 import scalaz.Show
 
-/** Algebraic type representing the 12 months of the Julian/Gregorian calendar. */
-sealed trait Month {
-
-  /* Natural ordinal in 1 .. 12 **/
-  def ord: Int
-
-  /* Length of this month in a non-leap year. **/
-  def commonDays: Int
-
-  /* Length of this month in a leap year. **/
-  def leapDays: Int =
-    commonDays
-
-  /** Length of this month, depending on 'isLeap'. */
-  def length(isLeap: Boolean): Int =
-    if (isLeap) leapDays else commonDays
-
+/** 
+ * Algebraic type representing the 12 months of the Julian/Gregorian calendar. 
+ * @param ord Natural ordinal in [1, 12]
+ * @param commonDays Length of this month in a non-leap year.
+ * @param leapDays Length of this month in a leap year.
+ */
+sealed abstract class Month(val ord: Int, val commonDays: Int, val leapDays: Int) {
+  def this(ord: Int, days: Int) = this(ord, days, days)
 }
 
 object Month extends MonthFunctions with MonthInstances {
 
-  case object Jan extends Month {
-    val ord = 1
-    val commonDays = 31
-  }
-
-  case object Feb extends Month {
-    val ord = 2
-    val commonDays = 28
-    override val leapDays = 29
-  }
-
-  case object Mar extends Month {
-    val ord = 3
-    val commonDays = 31
-  }
-
-  case object Apr extends Month {
-    val ord = 4
-    val commonDays = 30
-  }
-
-  case object May extends Month {
-    val ord = 5
-    val commonDays = 31
-  }
-
-  case object Jun extends Month {
-    val ord = 6
-    val commonDays = 30
-  }
-
-  case object Jul extends Month {
-    val ord = 7
-    val commonDays = 31
-  }
-
-  case object Aug extends Month {
-    val ord = 8
-    val commonDays = 31
-  }
-
-  case object Sep extends Month {
-    val ord = 9
-    val commonDays = 30
-  }
-
-  case object Oct extends Month {
-    val ord = 10
-    val commonDays = 31
-  }
-
-  case object Nov extends Month {
-    val ord = 11
-    val commonDays = 30
-  }
-
-  case object Dec extends Month {
-    val ord = 12
-    val commonDays = 31
-  }
-
- }
-
-trait MonthFunctions { this: Month.type =>
+  case object Jan extends Month(1, 31)
+  case object Feb extends Month(2, 28, 29)
+  case object Mar extends Month(3, 31)
+  case object Apr extends Month(4, 30)
+  case object May extends Month(5, 31)
+  case object Jun extends Month(6, 30)
+  case object Jul extends Month(7, 31)
+  case object Aug extends Month(8, 31)
+  case object Sep extends Month(9, 30)
+  case object Oct extends Month(10, 31)
+  case object Nov extends Month(11, 30)
+  case object Dec extends Month(12, 31)
 
   /** All month instances, in calendar order. */
   val months: List[Month] =
     List(Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec)
+
+ }
+
+trait MonthFunctions { this: Month.type =>
 
   /** Returns the corresponding Month for the natural ordinal in 1 .. 12, otherwise None. */
   def monthFromOrdinal(n: Int): Option[Month] =
