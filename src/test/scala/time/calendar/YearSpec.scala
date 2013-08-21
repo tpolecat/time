@@ -9,8 +9,7 @@ import scalaz.scalacheck.ScalazProperties._
 class YearSpec extends Spec {
 
   implicit def arb: Arbitrary[Year] = Arbitrary { 
-    // Testing with short to avoid boundary issues where enum fails.
-    arbitrary[Short].map(n => Year.apply(n.toInt)) 
+    arbitrary[Int].map(Year.apply) 
   }
   
   checkAll(equal.laws[Year])

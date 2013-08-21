@@ -73,6 +73,9 @@ trait YearInstances {
       override def predn(n: Int, a: Year): Year = Year(a.toInt - n)
       override def succn(n: Int, a: Year): Year = Year(a.toInt + n)
 
+      override def min: Option[Year] = Some(Year(Int.MinValue))
+      override def max: Option[Year] = Some(Year(Int.MaxValue))
+
       def order(x: Year, y: Year): Ordering =
         Ordering.fromLessThan(x, y)(_.toInt < _.toInt)
 
