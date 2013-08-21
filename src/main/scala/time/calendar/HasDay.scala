@@ -18,43 +18,13 @@ trait HasDay[A] extends HasMonth[A] {
 
   /** Construct a new day-precision date on the first day of the given month. */
   def fromYearAndMonth(year: Int, month: Month): A = 
+    unsafeFromYearMonthDay(year, month, 1)
+
+  def fromYearMonthDay(year: Int, month: Month, day: Int): Option[A] =
     ???
 
-  /** Convert to any other representation with day-of-year precision. */
-  def to[B](a: A)(implicit B: HasDay[B]) =
-    B.fromModifiedJulianDate(toModifiedJulianDate(a))
-
-  // HasYear implementation (free)
-
-  def year(a: A): Int = 
-    toOrdinalDate(a)._1
-
-  def dayOfYear(a: A): Int = 
-    toOrdinalDate(a)._2
-
-  // HasMonth implementation (free)
-
-  def month(a: A): Month =
-    monthAndDay(a)._1
-
-  def dayOfMonth(a: A): Int =
-    monthAndDay(a)._2
-
-  def addMonths(a: A, n: Int, mode: AddMode): A = {
-
-    def rolloverMonths(y: Int, m: Int): (Int, Int) =
-      (y + ((m - 1) / 12), ((m - 1) % 12).toInt + 1)
-
-    def addMonths(a: A, n: Int): (Int, Int, Int) = {
-      val (y, m) = rolloverMonths(year(a), month(a).ord + n)
-      (y, m, dayOfMonth(a))
-    }
-
-    ???
-  
-  }
-
-  // Useful functions
+  private def unsafeFromYearMonthDay(year: Int, month: Month, day: Int): A =
+    fromYearMonthDay(year, month, day).getOrElse(sys.error(s"day $day is out of range for $month $year"))
 
   def dayOfWeek(a: A): Weekday =
     Weekday.weekdayFromOrdinal(mondayStartWeek(a)._2).map(_.succ).get // ***
@@ -86,7 +56,45 @@ trait HasDay[A] extends HasMonth[A] {
     ((d / 7) - (k / 7), d % 7)
   }
 
-  // Some private helpers. Perhaps these should be exposed?
+  ////// Conversion
+
+  def to[B](a: A)(implicit B: HasDay[B]) =
+    B.fromModifiedJulianDate(toModifiedJulianDate(a))
+
+  ////// HasYear implementation (free)
+
+  def year(a: A): Int = 
+    toOrdinalDate(a)._1
+
+  def dayOfYear(a: A): Int = 
+    toOrdinalDate(a)._2
+
+  ////// HasMonth implementation (free)
+
+  def month(a: A): Month =
+    monthAndDay(a)._1
+
+  def dayOfMonth(a: A): Int =
+    monthAndDay(a)._2
+
+  // TODO: this is suspiciously complex
+  def addMonths(a: A, n: Int, mode: AddMode): A = {
+
+    def addMonths(n: Int): (Int, Month, Int) = {
+      def rolloverMonths(y: Int, m: Int): (Int, Int) =
+        (y + ((m - 1) / 12), ((m - 1) % 12).toInt + 1)
+      val (y, m) = rolloverMonths(year(a), month(a).ord + n)
+      (y, Month.unsafeMonthFromOrdinal(m), dayOfMonth(a))
+    }
+
+    val (y, m, d) = addMonths(n)
+    mode.fold(
+      unsafeFromYearMonthDay(y, m, d),
+      addDays(unsafeFromYearMonthDay(y, m, 1), (d - 1))) 
+    
+  }
+
+  ////// Some private helpers. Perhaps these should be exposed?
 
   private def toOrdinalDate(a: A): (Int /* Year */, Int /* Day of year */) = {
     val x = toModifiedJulianDate(a) + 678575
@@ -105,7 +113,7 @@ trait HasDay[A] extends HasMonth[A] {
   private def monthAndDay(a:A): (Month, Int) = {
     val isLeap = isLeapYear(a)
     val dy = toOrdinalDate(a)._2
-    (isLeap ? Month.monthAndDayLeap(dy) | Month.monthAndDayCommon(dy)).get // **
+    (isLeap ? Month.unsafeMonthAndDayLeap(dy) | Month.unsafeMonthAndDayCommon(dy))
   }
 
 }

@@ -41,6 +41,9 @@ trait MonthFunctions { this: Month.type =>
   def monthFromOrdinal(n: Int): Option[Month] =
     months.find(_.ord == n)
 
+  private[calendar] def unsafeMonthFromOrdinal(n: Int): Month =
+    monthFromOrdinal(n).getOrElse(sys.error(s"ordinal $n is out of range [1, 12]"))
+
   // Find month and day; used below
   private def monthAndDay(n: Int, f: Month => Int): Option[(Month, Int)] = {
     def find(ms: List[Month], n: Int): Option[(Month, Int)] = ms match {
@@ -58,12 +61,18 @@ trait MonthFunctions { this: Month.type =>
   def monthAndDayCommon(n: Int): Option[(Month, Int)] =
     monthAndDay(n, _.commonDays)
 
+  private[calendar] def unsafeMonthAndDayCommon(n: Int): (Month, Int) =
+    monthAndDayCommon(n).getOrElse(sys.error(s"$n is out of range [1, 365]"))
+
   /** 
    * Returns the month and day of month, given day of a leap year, or None if the given day is out 
    * of the range [1, 366].
    */
   def monthAndDayLeap(n: Int): Option[(Month, Int)] =
     monthAndDay(n, _.leapDays)
+
+  private[calendar] def unsafeMonthAndDayLeap(n: Int): (Month, Int) =
+    monthAndDayLeap(n).getOrElse(sys.error(s"$n is out of range [1, 366]"))
 
 }
 

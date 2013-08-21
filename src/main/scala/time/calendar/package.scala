@@ -22,5 +22,12 @@ package object calendar {
   def daysInYear(year: Int): Int =
     if (isLeapYear(year)) 366 else 365
 
+
+  type CommonYear = Year.CommonYear
+  val CommonYear = Year.CommonYear
+
+  type LeapYear = Year.LeapYear
+  val LeapYear = Year.LeapYear
+
 }
 

@@ -28,6 +28,9 @@ object Weekday extends WeekdayFunctions with WeekdayInstances {
   def weekdayFromOrdinal(n: Int): Option[Weekday] =
     weekdays.find(_.ord == n)
 
+  private[calendar] def unsafeWeekdayFromOrdinal(n: Int): Weekday =
+    weekdayFromOrdinal(n).getOrElse(sys.error(s"$n is out of range [1, 7]"))
+
 }
 
 trait WeekdayFunctions 

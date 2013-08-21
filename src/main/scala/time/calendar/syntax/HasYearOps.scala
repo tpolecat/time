@@ -11,8 +11,8 @@ trait HasYearOps[A] extends Ops[A] {
   def year: Int =
     A.year(self)
 
-  def addYears(n: Int, mode: AddMode): A =
-    A.addYears(self, n, mode)
+  // def addYears(n: Int, mode: AddMode): A =
+  //   A.addYear(self, n, mode)
 
   def isLeapYear: Boolean = 
     A.isLeapYear(self)

@@ -6,16 +6,17 @@ trait HasMonth[A] extends HasYear[A] {
 
   def fromYearAndMonth(y: Int, m: Month): A
 
-  def to[B](a: A)(implicit B: HasMonth[B]): B =
-    B.fromYearAndMonth(year(a), month(a))
-
   def month(a:A): Month
 
   def addMonths(a:A, n: Int, mode: AddMode): A 
 
-
   def lengthOfMonth(a:A): Int =
     HasMonth.lengthOfMonth(year(a), month(a))
+
+  ////// Conversion
+
+  def to[B](a: A)(implicit B: HasMonth[B]): B =
+    B.fromYearAndMonth(year(a), month(a))
 
   ////// HasYear implementation 
 

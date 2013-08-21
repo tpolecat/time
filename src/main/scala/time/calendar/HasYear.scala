@@ -10,10 +10,6 @@ trait HasYear[A] {
   /** Construct an instance given a year. */
   def fromYear(y: Int): A
 
-  /** Convert to any other type with HasYear. */  
-  def to[B](a: A)(implicit ev: HasYear[B]): B =
-    ev.fromYear(year(a))
-
   /** Add `n` years given the specified `AddMode`. */
   def addYears(a:A, n: Int, mode: AddMode): A
 
@@ -32,6 +28,11 @@ trait HasYear[A] {
   /** Length of this year in days. */
   def lengthOfYear(a: A): Int =
     HasYear.lengthOfYear(year(a))
+
+  ////// Conversion
+
+  def to[B](a: A)(implicit B: HasYear[B]): B =
+    B.fromYear(year(a))
 
 }
 

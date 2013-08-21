@@ -30,46 +30,19 @@ object Date extends DateFunctions with DateInstances {
       fromModifiedJulianDate(mjd)
     }
 
-  // def fromOrdinalDateClipped(year: Int, dayOfYear: Int): Date = {
-  //   val day0 = clip(1, daysInYear(year), dayOfYear)
-  //   val y = year - 1
-  //   val mjd = day0 + (365 * y) + (y / 4) - (y / 100) + (y / 400) - 678576
-  //   fromModifiedJulianDate(mjd)
-  // }
-
-  /**
-   * Convert from proleptic Gregorian calendar. First argument is year, second month number (1-12), 
-   * third day (1-31). Invalid values will be clipped to the correct range, month first, then day.
-   */
-  // def fromYearMonthDayClipped(year: Int, month: Int, day: Int): Date =
-  //   fromOrdinalDateClipped(year, dayOfYearClipped(isLeapYear(year), month, day))
-
   /**
    * Convert from proleptic Gregorian calendar. First argument is year, second month number (1-12), 
    * third day (1-31). Invalid values will return None
    */
-  // def apply(year: Int, month: Int, day: Int): Option[Date] =
-  //   dayOfYear(isLeapYear(year), month, day).flatMap(fromOrdinalDate(year, _))
-
   def apply(year: Int, month: Month, day: Int): Option[Date] =
     dayOfYear(isLeapYear(year), month, day).flatMap(fromOrdinalDate(year, _))
 
   def unapply(d: Date): Some[(Int, Month, Int)] =
-    Some {
-      (hasDay.year(d), hasDay.month(d), hasDay.dayOfMonth(d))
-    }
+    Some((hasDay.year(d), hasDay.month(d), hasDay.dayOfMonth(d)))
 
 }
 
 trait DateFunctions {
-
-  // /** Convert month and day (clipped) in the Gregorian or Julian calendars to day of year. */
-  // def dayOfYearClipped(isLeap: Boolean, month: Int, day: Int): Int = {
-  //   val month0 = clip(1, 12, month)
-  //   val day0 = clip(1, monthLength0(isLeap, month0), day)
-  //   val k = if (month0 <= 2) 0 else if (isLeap) -1 else -2
-  //   ((367 * month0 - 362) / 12) + k + day0
-  // }
 
   /** Convert month and day in the Gregorian or Julian calendars to day of year. */
   def dayOfYear(isLeap: Boolean, month: Month, day: Int): Option[Int] =
