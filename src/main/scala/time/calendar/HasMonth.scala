@@ -4,7 +4,7 @@ package calendar
 /** Typeclass for calendar dates with month and year precision. */
 trait HasMonth[A] extends HasYear[A] {
 
-  def fromYearAndMonth(y: Int, m: Month): A
+  def fromYearAndMonth(y: Year, m: Month): A
 
   def month(a:A): Month
 
@@ -20,9 +20,7 @@ trait HasMonth[A] extends HasYear[A] {
 
   ////// HasYear implementation 
 
-  def year(a: A): Int
-
-  def fromYear(y: Int): A =
+  def fromYear(y: Year): A =
     fromYearAndMonth(y, Month.Jan)
 
   def addYears(a: A, n: Int, mode: AddMode) : A = 
@@ -36,8 +34,8 @@ object HasMonth extends HasMonthFunctions {
 
 trait HasMonthFunctions {
 
-  def lengthOfMonth(year: Int, month: Month): Int =
-    if (HasYear.isLeapYear(year)) month.leapDays else month.commonDays
+  def lengthOfMonth(year: Year, month: Month): Int =
+    year.fold(_ => month.commonDays, _ => month.leapDays)
 
 }
 

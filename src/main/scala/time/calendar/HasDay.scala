@@ -17,13 +17,13 @@ trait HasDay[A] extends HasMonth[A] {
   def fromModifiedJulianDate(n: Int): A
 
   /** Construct a new day-precision date on the first day of the given month. */
-  def fromYearAndMonth(year: Int, month: Month): A = 
+  def fromYearAndMonth(year: Year, month: Month): A = 
     unsafeFromYearMonthDay(year, month, 1)
 
-  def fromYearMonthDay(year: Int, month: Month, day: Int): Option[A] =
+  def fromYearMonthDay(year: Year, month: Month, day: Int): Option[A] =
     ???
 
-  private def unsafeFromYearMonthDay(year: Int, month: Month, day: Int): A =
+  private def unsafeFromYearMonthDay(year: Year, month: Month, day: Int): A =
     fromYearMonthDay(year, month, day).getOrElse(sys.error(s"day $day is out of range for $month $year"))
 
   def dayOfWeek(a: A): Weekday =
@@ -63,8 +63,8 @@ trait HasDay[A] extends HasMonth[A] {
 
   ////// HasYear implementation (free)
 
-  def year(a: A): Int = 
-    toOrdinalDate(a)._1
+  def year(a: A): Year = 
+    ???
 
   def dayOfYear(a: A): Int = 
     toOrdinalDate(a)._2
@@ -83,14 +83,14 @@ trait HasDay[A] extends HasMonth[A] {
     def addMonths(n: Int): (Int, Month, Int) = {
       def rolloverMonths(y: Int, m: Int): (Int, Int) =
         (y + ((m - 1) / 12), ((m - 1) % 12).toInt + 1)
-      val (y, m) = rolloverMonths(year(a), month(a).ord + n)
+      val (y, m) = rolloverMonths(year(a).toInt, month(a).ord + n)
       (y, Month.unsafeMonthFromOrdinal(m), dayOfMonth(a))
     }
 
     val (y, m, d) = addMonths(n)
     mode.fold(
-      unsafeFromYearMonthDay(y, m, d),
-      addDays(unsafeFromYearMonthDay(y, m, 1), (d - 1))) 
+      unsafeFromYearMonthDay(Year(y), m, d),
+      addDays(unsafeFromYearMonthDay(Year(y), m, 1), (d - 1))) 
     
   }
 
@@ -111,9 +111,9 @@ trait HasDay[A] extends HasMonth[A] {
   }
 
   private def monthAndDay(a:A): (Month, Int) = {
-    val isLeap = isLeapYear(a)
+    val y = year(a)
     val dy = toOrdinalDate(a)._2
-    (isLeap ? Month.unsafeMonthAndDayLeap(dy) | Month.unsafeMonthAndDayCommon(dy))
+    y.fold(_ => Month.unsafeMonthAndDayCommon(dy), _ => Month.unsafeMonthAndDayLeap(dy))
   }
 
 }

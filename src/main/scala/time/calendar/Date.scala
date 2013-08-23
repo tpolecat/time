@@ -23,9 +23,9 @@ object Date extends DateFunctions with DateInstances {
   def fromModifiedJulianDate(n: Int): Date =
     new Date(n)
 
-  def fromOrdinalDate(year: Int, dayOfYear: Int): Option[Date] =
-    clipValid(1, daysInYear(year), dayOfYear) map { day0 =>
-      val y = year - 1
+  def fromOrdinalDate(year: Year, dayOfYear: Int): Option[Date] =
+    clipValid(1, year.length, dayOfYear) map { day0 =>
+      val y = year.toInt - 1
       val mjd = day0 + (365 * y) + (y / 4) - (y / 100) + (y / 400) - 678576
       fromModifiedJulianDate(mjd)
     }
@@ -34,10 +34,10 @@ object Date extends DateFunctions with DateInstances {
    * Convert from proleptic Gregorian calendar. First argument is year, second month number (1-12), 
    * third day (1-31). Invalid values will return None
    */
-  def apply(year: Int, month: Month, day: Int): Option[Date] =
-    dayOfYear(isLeapYear(year), month, day).flatMap(fromOrdinalDate(year, _))
+  def apply(year: Year, month: Month, day: Int): Option[Date] =
+    dayOfYear(year.fold(_ => false, _ => true), month, day).flatMap(fromOrdinalDate(year, _))
 
-  def unapply(d: Date): Some[(Int, Month, Int)] =
+  def unapply(d: Date): Some[(Year, Month, Int)] =
     Some((hasDay.year(d), hasDay.month(d), hasDay.dayOfMonth(d)))
 
 }
@@ -76,7 +76,7 @@ trait DateInstances {
   implicit val show: Show[Date] = 
     Show.shows { a => 
       val Date(y, m, d) = a
-      f"${y}%04d-${m.ord}%02d-${d}%02d"
+      f"${y.toInt}%04d-${m.ord}%02d-${d}%02d"
     }
 
 }

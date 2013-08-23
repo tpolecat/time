@@ -30,3 +30,4 @@ class YearSpec extends Spec {
   }
 
 }
+

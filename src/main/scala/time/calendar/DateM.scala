@@ -5,7 +5,7 @@ import scalaz._
 import Scalaz._
 
 /** ISO-8601 reduced-precision date with extended calendar year and month. */
-case class DateM(year: Int, month: Month)
+case class DateM(year: Year, month: Month)
 
 object DateM extends YearAndMonthFunctions with YearAndMonthInstances 
 
@@ -16,10 +16,10 @@ trait YearAndMonthInstances {
   implicit val hasMonth: HasMonth[DateM] =
     new HasMonth[DateM] {
 
-      def fromYearAndMonth(y: Int, m: Month): DateM =
+      def fromYearAndMonth(y: Year, m: Month): DateM =
         DateM(y, m)
 
-      def year(d: DateM): Int =
+      def year(d: DateM): Year =
         d.year
 
       def month(d: DateM): Month =
@@ -46,7 +46,7 @@ trait YearAndMonthInstances {
 
   /** Show instance for ISO-8601 YYYY-MM extended format. */
   implicit val show: Show[DateM] =
-    Show.shows(yam => f"${yam.year}%04d-${yam.month.ord}%02d")
+    Show.shows(yam => f"${yam.year.toInt}%04d-${yam.month.ord}%02d")
 
 }
 

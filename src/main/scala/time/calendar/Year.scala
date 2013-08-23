@@ -6,6 +6,7 @@ import scalaz.Equal
 import scalaz.Ordering
 import scalaz.Show
 import scalaz.std.anyVal._
+import scalaz.syntax.contravariant._
 
 /** Algebraic type for a calendar year, either a `CommonYear` or a `LeapYear`. */
 sealed trait Year {
@@ -81,9 +82,15 @@ trait YearInstances {
 
     }
 
-  /** Show instance for standard ISO-8601 YYYY format. */
-  implicit val show: Show[Year] =
-    Show.shows(y => f"${y.toInt}%d")
+  implicit val show: Show[Year] = 
+    Show.shows(y => f"${y.toInt}%04d")
+
+  implicit val hasYear: HasYear[Year] =
+    new HasYear[Year] {
+      def year(a: Year): Year = a
+      def fromYear(a: Year): Year = a
+      def addYears(a: Year, n: Int, addMode: AddMode): Year = enum.succn(n, a)
+    }
 
 }
 

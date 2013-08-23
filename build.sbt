@@ -52,7 +52,7 @@ initialCommands :=
   """import scalaz._
      import Scalaz._
      import time.calendar._
-     import time.calendar.syntax.all._
-     val d = Date.fromModifiedJulianDate(56519)"""
+     import time.calendar.syntax.all._"""
+//     val d = Date.fromModifiedJulianDate(56519)"""
 
 

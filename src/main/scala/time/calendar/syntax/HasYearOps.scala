@@ -8,26 +8,14 @@ import scalaz.syntax.Ops
 trait HasYearOps[A] extends Ops[A] {
   implicit def A: HasYear[A]
 
-  def year: Int =
+  def year: Year =
     A.year(self)
 
-  // def addYears(n: Int, mode: AddMode): A =
-  //   A.addYear(self, n, mode)
+  def addYears(n: Int, mode: AddMode): A =
+    A.addYears(self, n, mode)
 
-  def isLeapYear: Boolean = 
-    A.isLeapYear(self)
-
-  def isCommonYear: Boolean =
-    A.isCommonYear(self)
-
-  def isExtendedYear: Boolean = 
-    A.isExtendedYear(self)
-
-  def lengthOfYear: Int =
-    A.lengthOfYear(self)
-
-  // def toDateY: DateY =
-  //   A.toDateY(self)
+  def to[B : HasYear]: B = 
+    A.to[B](self)
 
 }
 
