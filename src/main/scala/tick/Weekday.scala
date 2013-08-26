@@ -1,4 +1,4 @@
-package time.calendar
+package tick
 
 import scalaz.Enum
 import scalaz.Ordering
@@ -28,12 +28,19 @@ object Weekday extends WeekdayFunctions with WeekdayInstances {
   def weekdayFromOrdinal(n: Int): Option[Weekday] =
     weekdays.find(_.ord == n)
 
-  private[calendar] def unsafeWeekdayFromOrdinal(n: Int): Weekday =
-    weekdayFromOrdinal(n).getOrElse(sys.error(s"$n is out of range [1, 7]"))
+  def fromDay[A : HasDay]: Weekday =
+    ???
 
 }
 
-trait WeekdayFunctions 
+trait WeekdayFunctions extends WeekdayFunctionsUnsafe
+
+trait WeekdayFunctionsUnsafe {
+
+  private[tick] def unsafeWeekdayFromOrdinal(n: Int): Weekday =
+    Weekday.weekdayFromOrdinal(n).getOrElse(sys.error(s"$n is out of range [1, 7]"))
+
+}
 
 trait WeekdayInstances { this: Weekday.type =>
 

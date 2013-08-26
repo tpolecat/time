@@ -1,5 +1,4 @@
-package time
-package calendar
+package tick
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary._
@@ -9,11 +8,8 @@ import scalaz.scalacheck.ScalazProperties._
 import scalaz.Equal
 
 class YearSpec extends Spec {
+  import YearSpec._
 
-  implicit def arb: Arbitrary[Year] = Arbitrary { 
-    arbitrary[Int].map(Year.apply) 
-  }
-  
   checkAll(equal.laws[Year])
   checkAll(enum.laws[Year])
 
@@ -31,3 +27,9 @@ class YearSpec extends Spec {
 
 }
 
+object YearSpec {
+
+  implicit def arbYear: Arbitrary[Year] = 
+    Arbitrary(arbitrary[Int].map(Year.apply))
+
+}

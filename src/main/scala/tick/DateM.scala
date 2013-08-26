@@ -1,11 +1,10 @@
-package time
-package calendar
+package tick
 
 import scalaz._
 import Scalaz._
 
-/** ISO-8601 reduced-precision date with extended calendar year and month. */
-case class DateM(year: Year, month: Month)
+/** Reduced-precision date with calendar year and month. */
+case class DateM(year: Year, month: Month) 
 
 object DateM extends YearAndMonthFunctions with YearAndMonthInstances 
 
@@ -42,9 +41,14 @@ trait YearAndMonthInstances {
       def order(x: DateM,y: DateM): Ordering = 
         Ordering.fromLessThan(x, y)((x, y) => (x.year, x.month) < ((y.year, y.month)))
 
+      override val min: Option[DateM] =
+        (Enum[Year].min |@| Enum[Month].min)(DateM.apply)
+
+      override val max: Option[DateM] =
+        (Enum[Year].max |@| Enum[Month].max)(DateM.apply)
+
     }
 
-  /** Show instance for ISO-8601 YYYY-MM extended format. */
   implicit val show: Show[DateM] =
     Show.shows(yam => f"${yam.year.toInt}%04d-${yam.month.ord}%02d")
 

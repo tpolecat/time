@@ -1,4 +1,4 @@
-name := "cal"
+name := "tick"
 
 version := "0.1"
 
@@ -16,16 +16,16 @@ resolvers ++= Seq(
 
 // Main
 libraryDependencies ++= Seq(
-  "org.scalaz"     %% "scalaz-core"       % "7.0.2",
-  "org.scalaz"     %% "scalaz-effect"     % "7.0.2",
-  "com.chuusai"    %% "shapeless"              % "1.2.4",
-  "org.spire-math" %% "spire"                  % "0.5.0"
+  "org.scalaz"     %% "scalaz-core"       % "7.0.2"
+  // "org.scalaz"     %% "scalaz-effect"     % "7.0.2",
+  // "com.chuusai"    %% "shapeless"              % "1.2.4",
+  // "org.spire-math" %% "spire"                  % "0.5.0"
 )
 
 // Test
 libraryDependencies ++= Seq(     
   "org.scalacheck" %% "scalacheck"                % "1.10.1" % "test",
-  "org.specs2"     %% "specs2"                    % "1.12.3"   % "test",
+  "org.specs2"     %% "specs2"                    % "1.12.3" % "test",
   "org.typelevel"  %% "scalaz-specs2"             % "0.1.3"  % "test",
   "org.scalaz"     %% "scalaz-scalacheck-binding" % "7.0.2"  % "test"
 )
@@ -51,8 +51,8 @@ scalacOptions ++= Seq(
 initialCommands :=
   """import scalaz._
      import Scalaz._
-     import time.calendar._
-     import time.calendar.syntax.all._"""
+     import tick._
+     import Tick._"""
 //     val d = Date.fromModifiedJulianDate(56519)"""
 
 

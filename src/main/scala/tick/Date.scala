@@ -1,11 +1,12 @@
-package time
-package calendar
+package tick
 
 import scalaz.Enum
+import scalaz.Order
 import scalaz.Ordering
 import scalaz.Show
 import scalaz.std.tuple._
 import scalaz.syntax.bifunctor._
+import scalaz.syntax.order._
 import scalaz.syntax.std.boolean._
 
 /** ISO-8601 calendar date with extended year. */
@@ -51,6 +52,15 @@ trait DateFunctions {
       k = if (month.ord <= 2) 0 else if (isLeap) -1 else -2
     } yield ((367 * month.ord - 362) / 12) + k + day0
 
+  def clip[A: Order](a: A, b: A, x: A): A =
+    if (x < a) a
+    else if (x > b) b
+    else x
+
+  def clipValid[A: Order](a: A, b: A, x: A): Option[A] =
+    if (x < a || x > b) None
+    else Some(x)
+    
 }
 
 trait DateInstances {

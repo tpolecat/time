@@ -1,5 +1,4 @@
-package time
-package calendar
+package tick
 
 import scalaz.Enum
 import scalaz.Equal
@@ -9,7 +8,7 @@ import scalaz.std.anyVal._
 import scalaz.syntax.contravariant._
 
 /** Algebraic type for a calendar year, either a `CommonYear` or a `LeapYear`. */
-sealed trait Year {
+sealed abstract class Year {
 
   val toInt: Int  
   val length: Int

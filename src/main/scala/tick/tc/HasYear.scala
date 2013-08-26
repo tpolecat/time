@@ -1,7 +1,7 @@
-package time
-package calendar
+package tick
+package tc
 
-/** Typeclass for calendar dates with year precision. */
+/** Typeclass for calendar dates with year precision (or better). */
 trait HasYear[A] {
   
   /** Calendar year. */
@@ -12,11 +12,6 @@ trait HasYear[A] {
 
   /** Add `n` years given the specified `AddMode`. */
   def addYears(a:A, n: Int, mode: AddMode): A
-
-  ////// Conversion
-
-  def to[B](a: A)(implicit B: HasYear[B]): B =
-    B.fromYear(year(a))
 
 }
 

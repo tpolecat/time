@@ -1,5 +1,4 @@
-package time
-package calendar
+package tick
 package syntax
 
 import scala.language.implicitConversions
@@ -13,9 +12,6 @@ trait HasYearOps[A] extends Ops[A] {
 
   def addYears(n: Int, mode: AddMode): A =
     A.addYears(self, n, mode)
-
-  def to[B : HasYear]: B = 
-    A.to[B](self)
 
 }
 

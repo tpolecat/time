@@ -1,5 +1,4 @@
-package time
-package calendar
+package tick
 package syntax
 
 import scala.language.implicitConversions

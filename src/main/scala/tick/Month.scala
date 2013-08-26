@@ -1,4 +1,4 @@
-package time.calendar
+package tick
 
 import scalaz.Enum
 import scalaz.Ordering
@@ -35,24 +35,11 @@ object Month extends MonthFunctions with MonthInstances {
 
  }
 
-trait MonthFunctions { this: Month.type =>
+trait MonthFunctions extends MonthFunctionsUnsafe { 
 
   /** Returns the corresponding Month for the natural ordinal in 1 .. 12, otherwise None. */
   def monthFromOrdinal(n: Int): Option[Month] =
-    months.find(_.ord == n)
-
-  private[calendar] def unsafeMonthFromOrdinal(n: Int): Month =
-    monthFromOrdinal(n).getOrElse(sys.error(s"ordinal $n is out of range [1, 12]"))
-
-  // Find month and day; used below
-  private def monthAndDay(n: Int, f: Month => Int): Option[(Month, Int)] = {
-    def find(ms: List[Month], n: Int): Option[(Month, Int)] = ms match {
-      case m :: ms if n <= f(m) => Some((m, n))
-      case m :: ms => find(ms, n - f(m))
-      case _ => None
-    }
-    if (n < 1) None else find(months, n)
-  }
+    Month.months.find(_.ord == n)
 
   /** 
    * Returns the month and day of month, given day of a common (non-leap) year, or None if the 
@@ -61,9 +48,6 @@ trait MonthFunctions { this: Month.type =>
   def monthAndDayCommon(n: Int): Option[(Month, Int)] =
     monthAndDay(n, _.commonDays)
 
-  private[calendar] def unsafeMonthAndDayCommon(n: Int): (Month, Int) =
-    monthAndDayCommon(n).getOrElse(sys.error(s"$n is out of range [1, 365]"))
-
   /** 
    * Returns the month and day of month, given day of a leap year, or None if the given day is out 
    * of the range [1, 366].
@@ -71,8 +55,32 @@ trait MonthFunctions { this: Month.type =>
   def monthAndDayLeap(n: Int): Option[(Month, Int)] =
     monthAndDay(n, _.leapDays)
 
-  private[calendar] def unsafeMonthAndDayLeap(n: Int): (Month, Int) =
-    monthAndDayLeap(n).getOrElse(sys.error(s"$n is out of range [1, 366]"))
+  /** 
+   * Compute the month and day, given day of year and a function for determining the length of a
+   * given month. Used by `monthAndDay[Common|Leap]` above.
+   */
+  private def monthAndDay(n: Int, f: Month => Int): Option[(Month, Int)] = {
+    def find(ms: List[Month], n: Int): Option[(Month, Int)] = ms match {
+      case m :: ms if n <= f(m) => Some((m, n))
+      case m :: ms => find(ms, n - f(m))
+      case _ => None
+    }
+    if (n < 1) None else find(Month.months, n)
+  }
+
+}
+
+trait MonthFunctionsUnsafe {
+
+  private[tick] def unsafeMonthFromOrdinal(n: Int): Month =
+    Month.monthFromOrdinal(n).getOrElse(sys.error(s"ordinal $n is out of range [1, 12]"))
+
+  private[tick] def unsafeMonthAndDayCommon(n: Int): (Month, Int) =
+    Month.monthAndDayCommon(n).getOrElse(sys.error(s"$n is out of range [1, 365]"))
+
+  private[tick] def unsafeMonthAndDayLeap(n: Int): (Month, Int) =
+    Month.monthAndDayLeap(n).getOrElse(sys.error(s"$n is out of range [1, 366]"))
+
 
 }
 

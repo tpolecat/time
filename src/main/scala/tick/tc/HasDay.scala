@@ -1,11 +1,11 @@
-package time
-package calendar
+package tick
+package tc
 
 import scalaz.syntax.enum._
 import scalaz.syntax.std.boolean._
 
 /** 
- * Typeclass for calendar dates with day-of-year precision. 
+ * Typeclass for calendar dates with day-of-year precision (or better). 
  *
  * The fundamental operation here is conversion to/from modified Julain date; all other operations
  * can be defined in these terms.

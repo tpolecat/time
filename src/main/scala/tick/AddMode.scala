@@ -1,7 +1,7 @@
-package time
-package calendar
+package tick
 
-sealed trait AddMode {
+/** Required for calculations that are potentially affected by leap days. */
+sealed abstract class AddMode {
 
   /** Return `c` if clip mode or `r` if rollover mode. */
   def fold[A](c: => A, r: => A): A =

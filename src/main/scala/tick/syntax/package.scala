@@ -1,5 +1,4 @@
-package time
-package calendar
+package tick
 
 package object syntax {
   
@@ -7,9 +6,7 @@ package object syntax {
   object hasMonth extends ToHasMonthOps
   object hasDay extends ToHasDayOps
 
-  object all extends ToHasYearOps
-    with ToHasMonthOps
-    with ToHasDayOps
+  object all extends Syntaxes
 
 }
 

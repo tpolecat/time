@@ -1,8 +1,10 @@
-package time
-package calendar
+package tick
+package tc
 
-/** Typeclass for calendar dates with month and year precision. */
+/** Typeclass for calendar dates with month and year precision (or better). */
 trait HasMonth[A] extends HasYear[A] {
+
+  ////// Minimal Implementation
 
   def fromYearAndMonth(y: Year, m: Month): A
 
@@ -10,10 +12,10 @@ trait HasMonth[A] extends HasYear[A] {
 
   def addMonths(a:A, n: Int, mode: AddMode): A 
 
-  def lengthOfMonth(a:A): Int =
-    HasMonth.lengthOfMonth(year(a), month(a))
+  ////// Useful Functions
 
-  ////// Conversion
+  def lengthOfMonth(a:A): Int =
+    year(a).fold(_ => month(a).commonDays, _ => month(a).leapDays)
 
   def to[B](a: A)(implicit B: HasMonth[B]): B =
     B.fromYearAndMonth(year(a), month(a))
