@@ -1,30 +1,35 @@
 package tick
 package tc
 
+import scalaz.Order
 import scalaz.syntax.enum._
 import scalaz.syntax.std.boolean._
 
-/** 
- * Typeclass for calendar dates with day-of-year precision (or better). 
- *
- * The fundamental operation here is conversion to/from modified Julain date; all other operations
- * can be defined in these terms.
- */
+/** Typeclass for calendar dates with day-of-year precision (or better). */
 trait HasDay[A] extends HasMonth[A] {
+
+  ////// Minimal Implementation
 
   def toModifiedJulianDate(a: A): Int
 
   def fromModifiedJulianDate(n: Int): A
 
+  ////// Alternative constructors
+
   /** Construct a new day-precision date on the first day of the given month. */
   def fromYearAndMonth(year: Year, month: Month): A = 
     unsafeFromYearMonthDay(year, month, 1)
 
-  def fromYearMonthDay(year: Year, month: Month, day: Int): Option[A] =
-    ???
+  def fromYearMonthDay(year: Year, month: Month, day: Int): Option[A] = 
+    for {
+      dy <- dayOfYear(year.isLeap, month, day) 
+      jd <- fromOrdinalDate(year, dy)
+    } yield fromModifiedJulianDate(jd)
 
   private def unsafeFromYearMonthDay(year: Year, month: Month, day: Int): A =
     fromYearMonthDay(year, month, day).getOrElse(sys.error(s"day $day is out of range for $month $year"))
+
+  ////// Useful Functions
 
   def dayOfWeek(a: A): Weekday =
     Weekday.weekdayFromOrdinal(mondayStartWeek(a)._2).map(_.succ).get // ***
@@ -56,19 +61,6 @@ trait HasDay[A] extends HasMonth[A] {
     ((d / 7) - (k / 7), d % 7)
   }
 
-  ////// Conversion
-
-  def to[B](a: A)(implicit B: HasDay[B]) =
-    B.fromModifiedJulianDate(toModifiedJulianDate(a))
-
-  ////// HasYear implementation (free)
-
-  def year(a: A): Year = 
-    ???
-
-  def dayOfYear(a: A): Int = 
-    toOrdinalDate(a)._2
-
   ////// HasMonth implementation (free)
 
   def month(a: A): Month =
@@ -78,7 +70,7 @@ trait HasDay[A] extends HasMonth[A] {
     monthAndDay(a)._2
 
   // TODO: this is suspiciously complex
-  def addMonths(a: A, n: Int, mode: AddMode): A = {
+  def addMonths(a: A, n: Int)(implicit mode: AddMode): A = {
 
     def addMonths(n: Int): (Int, Month, Int) = {
       def rolloverMonths(y: Int, m: Int): (Int, Int) =
@@ -94,7 +86,38 @@ trait HasDay[A] extends HasMonth[A] {
     
   }
 
+  ////// HasYear implementation (free)
+
+  def year(a: A): Year = 
+    Year(toOrdinalDate(a)._1)
+
+  def dayOfYear(a: A): Int = 
+    toOrdinalDate(a)._2
+
   ////// Some private helpers. Perhaps these should be exposed?
+
+  def fromOrdinalDate(year: Year, dayOfYear: Int): Option[Int] =
+    clipValid(1, year.length, dayOfYear) map { day0 =>
+      val y = year.toInt - 1
+      val mjd = day0 + (365 * y) + (y / 4) - (y / 100) + (y / 400) - 678576
+      mjd
+    }
+
+  /** Convert month and day in the Gregorian or Julian calendars to day of year. */
+  def dayOfYear(isLeap: Boolean, month: Month, day: Int): Option[Int] =
+    for {
+      day0 <- clipValid(1, isLeap ? month.leapDays | month.commonDays, day)
+      k = if (month.ord <= 2) 0 else if (isLeap) -1 else -2
+    } yield ((367 * month.ord - 362) / 12) + k + day0
+
+  def clip[N: Order](a: N, b: N, x: N): N =
+    if (x < a) a
+    else if (x > b) b
+    else x
+
+  def clipValid[N: Order](a: N, b: N, x: N): Option[N] =
+    if (x < a || x > b) None
+    else Some(x)
 
   private def toOrdinalDate(a: A): (Int /* Year */, Int /* Day of year */) = {
     val x = toModifiedJulianDate(a) + 678575

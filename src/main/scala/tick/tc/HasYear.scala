@@ -1,6 +1,10 @@
 package tick
 package tc
 
+import scalaz.@@
+import scalaz.Tag
+import tick.Tags.Years
+
 /** Typeclass for calendar dates with year precision (or better). */
 trait HasYear[A] {
   
@@ -11,7 +15,11 @@ trait HasYear[A] {
   def fromYear(y: Year): A
 
   /** Add `n` years given the specified `AddMode`. */
-  def addYears(a:A, n: Int, mode: AddMode): A
+  def addYears(a:A, n: Int)(implicit mode: AddMode): A
+
+  /** Difference in years, `a` - `b`. */
+  def diffYears(a: A, b: A): Int @@ Years =
+    Tag(year(a).toInt - year(b).toInt)
 
 }
 

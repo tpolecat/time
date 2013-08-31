@@ -1,6 +1,9 @@
 package tick
 package syntax
 
+import tick.Tags._
+import scalaz.Tag
+import scalaz.@@
 import scala.language.implicitConversions
 import scalaz.syntax.Ops
 
@@ -18,6 +21,9 @@ trait HasDayOps[A] extends Ops[A] {
 
   def addDays(n: Int): A =
     A.addDays(self, n)
+
+  def +(n: Int @@ Days): A =
+    addDays(n)
 
   def diffDays(b: A): Int =
     A.diffDays(self, b)

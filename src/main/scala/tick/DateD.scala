@@ -1,80 +1,64 @@
 package tick
 
-import scalaz._
-import Scalaz._
+import scalaz.Enum
+import scalaz.Order
+import scalaz.Ordering
+import scalaz.Show
+import scalaz.std.tuple._
+import scalaz.syntax.bifunctor._
+import scalaz.syntax.order._
+import scalaz.syntax.std.boolean._
 
-/** ISO-8601 ordinal date with extended year and day fo year. */
-final class DateD private (val year: Year, val dayOfYear: Int) {
+/** ISO-8601 ordinal date with extended year and day of year. */
+final class DateD private (val toModifiedJulianDate: Int) extends AnyVal {
 
-  override def toString =
-    s"DateD($year,$dayOfYear)"
+  override def toString: String = {
+    val DateD(y, d) = this
+    s"DateD($y,$d)"
+  }
 
 }
-
 
 object DateD extends DateDFunctions with DateDInstances {
 
-  def apply(year: Year, day: Int): Option[DateD] = 
-    (day > 0 && day <= year.length) option new DateD(year, day)
+  def fromModifiedJulianDate(n: Int): DateD =
+    new DateD(n)
 
-  def unapply(yd: DateD): Some[(Year, Int)] =
-    Some((yd.year, yd.dayOfYear))
+  def apply(year: Year, dayOfYear: Int): Option[DateD] =
+    hasDay.fromOrdinalDate(year, dayOfYear).map(fromModifiedJulianDate)
 
-}
-
-
-trait DateDFunctions extends DateDFunctionsUnsafe
-
-
-trait DateDFunctionsUnsafe { 
-
-  def unsafeApply(year: Year, day: Int): DateD =
-    DateD(year, day).getOrElse(sys.error(s"day $day is invalid for year $year"))
+  def unapply(d: DateD): Some[(Year, Int)] =
+    Some((hasDay.year(d), hasDay.dayOfYear(d)))
 
 }
 
+trait DateDFunctions
 
-trait DateDInstances { 
+trait DateDInstances {
 
-  // Needs to be here because it constructs instances
-  implicit val enum: Enum[DateD] = 
+  implicit val hasDay: HasDay[DateD] =
+    HasDay.byModifiedJulianDate(_.toModifiedJulianDate, DateD.fromModifiedJulianDate)
+
+  implicit val enum: Enum[DateD] =
     new Enum[DateD] {
 
       def pred(a: DateD): DateD =
-        a match {
-          case DateD(y, 1) => DateD.unsafeApply(y.pred, y.pred.length)
-          case DateD(y, d) => DateD.unsafeApply(y, d.pred)
-        }
+        DateD.fromModifiedJulianDate(a.toModifiedJulianDate - 1)
 
-      def succ(a: DateD): DateD = 
-        a match {
-          case DateD(y, d) if d == y.length => DateD.unsafeApply(y.succ, 1)
-          case DateD(y, d) => DateD.unsafeApply(y,  d.succ)
-        }
+      def succ(a: DateD): DateD =
+        DateD.fromModifiedJulianDate(a.toModifiedJulianDate + 1)
 
-      def order(x: DateD,y: DateD): Ordering = 
-        Ordering.fromLessThan(x, y)((x, y) => (x.year, x.dayOfYear) < ((y.year, y.dayOfYear)))
+      def order(x: DateD, y: DateD): Ordering = 
+        Ordering.fromInt(x.toModifiedJulianDate - y.toModifiedJulianDate)
 
-    }
-
-  // TODO: HasDay
-  implicit val hasYear: HasYear[DateD] =
-    new HasYear[DateD] {
-      
-      def year(a: DateD): Year = 
-        a.year
-      
-      def fromYear(a: Year): DateD = 
-        DateD.unsafeApply(a, 1)
-
-      def addYears(a: DateD, n: Int, addMode: AddMode): DateD =
-        ???
-    
     }
 
   /** Show instance for ISO-8601 YYYY-DDD extended format. */
-  implicit val show: Show[DateD] =
-    Show.shows(yd => f"${yd.year.toInt}%04d-${yd.dayOfYear}%03d")
+  implicit val show: Show[DateD] = 
+    Show.shows { a => 
+      val DateD(y, d) = a
+      f"${y.toInt}%04d-${d}%03d"
+    }
 
 }
 

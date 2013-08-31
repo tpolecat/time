@@ -19,6 +19,9 @@ sealed abstract class Year {
       case LeapYear(n) => leap(n)
     }
 
+  def isLeap: Boolean =
+    fold(_ => false, _ => true)
+
   override def toString = 
     fold(n => s"CommonYear($n)", n => s"LeapYear($n)")
 
@@ -28,6 +31,9 @@ object Year extends YearFunctions with YearInstances {
 
   def apply(n: Int): Year =
     if (isLeapYear(n)) new LeapYear(n) else new CommonYear(n)
+
+  def from[A](a:A)(implicit ev: HasYear[A]) =
+    ev.year(a)
 
   class CommonYear private[Year] (val toInt: Int) extends Year {
     val length = 365
@@ -81,6 +87,7 @@ trait YearInstances {
 
     }
 
+  /** Show instance for ISO-8601 YYYY format. */
   implicit val show: Show[Year] = 
     Show.shows(y => f"${y.toInt}%04d")
 
@@ -88,8 +95,9 @@ trait YearInstances {
     new HasYear[Year] {
       def year(a: Year): Year = a
       def fromYear(a: Year): Year = a
-      def addYears(a: Year, n: Int, addMode: AddMode): Year = enum.succn(n, a)
+      def addYears(a: Year, n: Int)(implicit mode: AddMode): Year = enum.succn(n, a)
     }
+
 
 }
 

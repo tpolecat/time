@@ -1,6 +1,9 @@
 package tick
 
+import scala.annotation.implicitNotFound
+
 /** Required for calculations that are potentially affected by leap days. */
+@implicitNotFound("Provide an AddMode or import AddMode.Implicits.clip/rollover")
 sealed abstract class AddMode {
 
   /** Return `c` if clip mode or `r` if rollover mode. */
@@ -28,5 +31,13 @@ object AddMode {
    * For instance, 2004-02-29 + 2 years = 2006-03-01; or 2005-01-30 + 1 month = 2005-03-02.
    */
   case object Rollover extends AddMode
+
+  /**
+   * Implicit values for AddMode; you typically import exactly one.
+   */
+  object Implicits {
+    implicit val clip = Clip
+    implicit val rollover = Rollover
+  }
 
 }

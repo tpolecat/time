@@ -28,8 +28,8 @@ object Weekday extends WeekdayFunctions with WeekdayInstances {
   def weekdayFromOrdinal(n: Int): Option[Weekday] =
     weekdays.find(_.ord == n)
 
-  def fromDay[A : HasDay]: Weekday =
-    ???
+  // def fromDay[A : HasDay]: Weekday =
+  //   ???
 
 }
 

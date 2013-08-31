@@ -24,44 +24,15 @@ object Date extends DateFunctions with DateInstances {
   def fromModifiedJulianDate(n: Int): Date =
     new Date(n)
 
-  def fromOrdinalDate(year: Year, dayOfYear: Int): Option[Date] =
-    clipValid(1, year.length, dayOfYear) map { day0 =>
-      val y = year.toInt - 1
-      val mjd = day0 + (365 * y) + (y / 4) - (y / 100) + (y / 400) - 678576
-      fromModifiedJulianDate(mjd)
-    }
-
-  /**
-   * Convert from proleptic Gregorian calendar. First argument is year, second month number (1-12), 
-   * third day (1-31). Invalid values will return None
-   */
   def apply(year: Year, month: Month, day: Int): Option[Date] =
-    dayOfYear(year.fold(_ => false, _ => true), month, day).flatMap(fromOrdinalDate(year, _))
+    hasDay.fromYearMonthDay(year, month, day)
 
   def unapply(d: Date): Some[(Year, Month, Int)] =
     Some((hasDay.year(d), hasDay.month(d), hasDay.dayOfMonth(d)))
 
 }
 
-trait DateFunctions {
-
-  /** Convert month and day in the Gregorian or Julian calendars to day of year. */
-  def dayOfYear(isLeap: Boolean, month: Month, day: Int): Option[Int] =
-    for {
-      day0 <- clipValid(1, isLeap ? month.leapDays | month.commonDays, day)
-      k = if (month.ord <= 2) 0 else if (isLeap) -1 else -2
-    } yield ((367 * month.ord - 362) / 12) + k + day0
-
-  def clip[A: Order](a: A, b: A, x: A): A =
-    if (x < a) a
-    else if (x > b) b
-    else x
-
-  def clipValid[A: Order](a: A, b: A, x: A): Option[A] =
-    if (x < a || x > b) None
-    else Some(x)
-    
-}
+trait DateFunctions
 
 trait DateInstances {
 

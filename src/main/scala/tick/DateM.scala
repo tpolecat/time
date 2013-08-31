@@ -24,7 +24,7 @@ trait YearAndMonthInstances {
       def month(d: DateM): Month =
         d.month
 
-      def addMonths(d: DateM, n: Int, mode: AddMode): DateM = 
+      def addMonths(d: DateM, n: Int)(implicit mode: AddMode): DateM = 
         enum.succn(n, d)
 
     }
@@ -49,6 +49,7 @@ trait YearAndMonthInstances {
 
     }
 
+  /** Show instance for ISO-8601 YYYY-MM extended format. */
   implicit val show: Show[DateM] =
     Show.shows(yam => f"${yam.year.toInt}%04d-${yam.month.ord}%02d")
 

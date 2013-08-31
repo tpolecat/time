@@ -10,23 +10,24 @@ trait HasMonth[A] extends HasYear[A] {
 
   def month(a:A): Month
 
-  def addMonths(a:A, n: Int, mode: AddMode): A 
+  def addMonths(a:A, n: Int)(implicit mode: AddMode): A 
+
+  /** Difference in months, `a` - `b`. */
+  def diffMonths(a: A, b: A): Int =
+    diffYears(a, b) * 12 + month(a).ord - month(b).ord
 
   ////// Useful Functions
 
   def lengthOfMonth(a:A): Int =
     year(a).fold(_ => month(a).commonDays, _ => month(a).leapDays)
 
-  def to[B](a: A)(implicit B: HasMonth[B]): B =
-    B.fromYearAndMonth(year(a), month(a))
-
-  ////// HasYear implementation 
+  ////// Default HasYear Implementation
 
   def fromYear(y: Year): A =
     fromYearAndMonth(y, Month.Jan)
 
-  def addYears(a: A, n: Int, mode: AddMode) : A = 
-    addMonths(a, n * 12, mode)
+  def addYears(a: A, n: Int)(implicit mode: AddMode) : A = 
+    addMonths(a, n * 12)
 
 }
 
