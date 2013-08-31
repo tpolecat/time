@@ -1,5 +1,7 @@
 package tick
 
+import scalaz.@@
+import scalaz.Tag
 import scalaz.Enum
 import scalaz.Ordering
 import scalaz.Show
@@ -10,14 +12,14 @@ import scalaz.Show
  * @param commonDays Length of this month in a non-leap year.
  * @param leapDays Length of this month in a leap year.
  */
-sealed abstract class Month(val ord: Int, val commonDays: Int, val leapDays: Int) {
-  def this(ord: Int, days: Int) = this(ord, days, days)
+sealed abstract class Month(val ord: Int, val commonDays: Int @@ Days, val leapDays: Int @@ Days) {
+  def this(ord: Int, days: Int) = this(ord, Tag(days), Tag(days))
 }
 
 object Month extends MonthFunctions with MonthInstances {
 
   case object Jan extends Month(1, 31)
-  case object Feb extends Month(2, 28, 29)
+  case object Feb extends Month(2, Tag(28), Tag(29))
   case object Mar extends Month(3, 31)
   case object Apr extends Month(4, 30)
   case object May extends Month(5, 31)

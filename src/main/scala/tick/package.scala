@@ -36,5 +36,9 @@ package object tick {
   type HasYear[A] = tick.tc.HasYear[A]
   val HasYear = tick.tc.HasYear
 
+  type Years  = Tags.Years
+  type Months = Tags.Months
+  type Days   = Tags.Days
+
 }
 

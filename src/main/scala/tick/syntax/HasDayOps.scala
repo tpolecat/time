@@ -25,6 +25,9 @@ trait HasDayOps[A] extends Ops[A] {
   def +(n: Int @@ Days): A =
     addDays(n)
 
+  def -(n: Int @@ Days): A =
+    addDays(-n)
+
   def diffDays(b: A): Int =
     A.diffDays(self, b)
 

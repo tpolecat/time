@@ -19,6 +19,9 @@ trait HasMonthOps[A] extends Ops[A] {
   def +(n: Int @@ Months)(implicit mode: AddMode): A =
     addMonths(n)
 
+  def -(n: Int @@ Months)(implicit mode: AddMode): A =
+    addMonths(-n)
+
   def lengthOfMonth: Int =
     A.lengthOfMonth(self)
 

@@ -1,5 +1,7 @@
 package tick
 
+import scalaz.@@
+import scalaz.Tag
 import scalaz.Enum
 import scalaz.Equal
 import scalaz.Ordering
@@ -11,7 +13,7 @@ import scalaz.syntax.contravariant._
 sealed abstract class Year {
 
   val toInt: Int  
-  val length: Int
+  val length: Int @@ Days
 
   def fold[A](common: Int => A, leap: Int => A): A =
     this match {
@@ -36,11 +38,13 @@ object Year extends YearFunctions with YearInstances {
     ev.year(a)
 
   class CommonYear private[Year] (val toInt: Int) extends Year {
-    val length = 365
+    val length: Int @@ Days = 
+      Tag(365)
   }
 
   class LeapYear private[Year] (val toInt: Int) extends Year {
-    val length = 366
+    val length: Int @@ Days = 
+      Tag(366)
   }
 
   object CommonYear {

@@ -18,6 +18,9 @@ trait HasYearOps[A] extends Ops[A] {
   def +(n: Int @@ Years)(implicit mode: AddMode): A =
     addYears(n)
 
+  def -(n: Int @@ Years)(implicit mode: AddMode): A =
+    addYears(-n)
+
 }
 
 trait ToHasYearOps {
